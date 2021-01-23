@@ -1,8 +1,12 @@
 var express = require("express");
 var path = require("path");
 
+const Gpio = require("onoff").Gpio;
+const led = new Gpio(17, "out");
+
 const onStateChange = (body) => {
   console.log("onStateChange", body);
+  led.writeSync(body.on);
 };
 
 const setup = (lightName, macAddress, onStateChange) => {

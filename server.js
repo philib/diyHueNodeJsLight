@@ -41,7 +41,7 @@ const setup = (lightName, macAddress, onStateChange) => {
     onStateChange(state);
     res.send(state);
   });
-  app.listen(80);
+  app.listen(8080);
 };
 
 setup("AmbiCouch", "74:70:fd:fb:54:32", onStateChange);

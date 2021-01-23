@@ -6,7 +6,15 @@ const onStateChange = (body) => {
 };
 
 const setup = (lightName, macAddress, onStateChange) => {
-  var state = { on: true, bri: 150, xy: [0.32, 0.32], ct: 230 };
+  var state = {
+    on: true,
+    bri: 150,
+    xy: [0.32, 0.32],
+    ct: 230,
+    transitiontime: 0,
+    alert: "none",
+    effect: "none",
+  };
   var app = express();
   app.use(express.json());
   app.get("/", (_, res) => {

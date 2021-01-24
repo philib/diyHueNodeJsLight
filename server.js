@@ -1,6 +1,7 @@
-var express = require("express");
-var path = require("path");
-var colorConverter = require("cie-rgb-color-converter");
+const express = require("express");
+const path = require("path");
+const colorConverter = require("cie-rgb-color-converter");
+const dgram = require("dgram");
 
 const lightDefaults = {
   name: "diyHue Light",
@@ -11,6 +12,17 @@ const lightDefaults = {
 };
 
 exports.start = (lightName, macAddress, onStateChange, port = 80) => {
+  const entertainmentServer = dgram.createSocket("udp4");
+  entertainmentServer.on("message", (msg, _) => {
+    rgbState = {
+      r: msg.readUInt8(1),
+      g: msg.readUInt8(2),
+      b: msg.readUInt8(3),
+    };
+    onStateChange(rgbState);
+  });
+  entertainmentServer.bind(2100);
+
   var hueState = {
     on: true,
     bri: 150,
@@ -26,14 +38,14 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
     b: 0,
   };
 
-  var app = express();
-  app.use(express.json());
+  var hueApi = express();
+  hueApi.use(express.json());
 
-  app.get("/", (_, res) => {
+  hueApi.get("/", (_, res) => {
     res.sendFile(path.join(__dirname + "/index.html"));
   });
 
-  app.get("/detect", (_, res) => {
+  hueApi.get("/detect", (_, res) => {
     console.log("detected");
     var response = {
       ...lightDefaults,
@@ -43,12 +55,12 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
     res.send(response);
   });
 
-  app.get("/state", (_, res) => {
+  hueApi.get("/state", (_, res) => {
     console.log("get state");
     res.send(hueState);
   });
 
-  app.put("/state", (req, res) => {
+  hueApi.put("/state", (req, res) => {
     hueState = { ...hueState, ...req.body };
     rgbState = colorConverter.xyBriToRgb(
       hueState.xy[0],
@@ -59,7 +71,7 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
     res.send(hueState);
   });
 
-  app.get("/color", (req, res) => {
+  hueApi.get("/color", (req, res) => {
     res.send(
       `
 	    <!DOCTYPE html>
@@ -74,5 +86,6 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
 	    `
     );
   });
-  app.listen(port);
+
+  hueApi.listen(port);
 };

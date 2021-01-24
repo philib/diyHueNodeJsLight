@@ -1,5 +1,6 @@
 var express = require("express");
 var path = require("path");
+var colorConverter = require("cie-rgb-color-converter");
 
 const lightDefaults = {
   name: "diyHue Light",
@@ -9,8 +10,8 @@ const lightDefaults = {
   version: 3.0,
 };
 
-export const start = (lightName, macAddress, onStateChange, port = 80) => {
-  var state = {
+exports.start = (lightName, macAddress, onStateChange, port = 80) => {
+  var hueState = {
     on: true,
     bri: 150,
     xy: [0.32, 0.32],
@@ -18,6 +19,11 @@ export const start = (lightName, macAddress, onStateChange, port = 80) => {
     transitiontime: 0,
     alert: "none",
     effect: "none",
+  };
+  var rgbState = {
+    r: 0,
+    g: 0,
+    b: 0,
   };
 
   var app = express();
@@ -39,13 +45,34 @@ export const start = (lightName, macAddress, onStateChange, port = 80) => {
 
   app.get("/state", (_, res) => {
     console.log("get state");
-    res.send(state);
+    res.send(hueState);
   });
 
   app.put("/state", (req, res) => {
-    state = { ...state, ...req.body };
-    onStateChange(state);
-    res.send(state);
+    hueState = { ...hueState, ...req.body };
+    rgbState = colorConverter.xyBriToRgb(
+      hueState.xy[0],
+      hueState.xy[1],
+      hueState.bri
+    );
+    onStateChange(rgbState);
+    res.send(hueState);
+  });
+
+  app.get("/color", (req, res) => {
+    res.send(
+      `
+	    <!DOCTYPE html>
+	    <html back>
+	    <style>
+	    html {
+		        background-color: rgb(${rgbState.r}, ${rgbState.g}, ${rgbState.b});
+	    }
+	    </style>
+	    </html>
+
+	    `
+    );
   });
   app.listen(port);
 };

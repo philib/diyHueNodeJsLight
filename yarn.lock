@@ -230,6 +230,11 @@ chokidar@^2.1.8:
   optionalDependencies:
     fsevents "^1.2.7"
 
+cie-rgb-color-converter@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/cie-rgb-color-converter/-/cie-rgb-color-converter-1.0.6.tgz#4414f20d07bd9ef74daacbd4cd10215be2bdf9eb"
+  integrity sha512-ox9KQRf1i8jFhE1d0cZGwGLyRWy03oFLUhXqr9XrD4XACNezejiarj/4VZnYcYHOifQcmY/JIC0HB1Nkv+nFZQ==
+
 class-utils@^0.3.5:
   version "0.3.6"
   resolved "https://registry.yarnpkg.com/class-utils/-/class-utils-0.3.6.tgz#f93369ae8b9a7ce02fd41faad0ca83033190c463"

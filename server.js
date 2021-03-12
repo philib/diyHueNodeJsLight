@@ -42,7 +42,7 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
   hueApi.use(express.json());
 
   hueApi.get("/", (_, res) => {
-    res.sendFile(path.join(__dirname + "/index.html"));
+    res.sendFile(path.join(__dirname + "/color.html"));
   });
 
   hueApi.get("/detect", (_, res) => {
@@ -71,20 +71,14 @@ exports.start = (lightName, macAddress, onStateChange, port = 80) => {
     res.send(hueState);
   });
 
-  hueApi.get("/color", (req, res) => {
-    res.send(
-      `
-	    <!DOCTYPE html>
-	    <html back>
-	    <style>
-	    html {
-		        background-color: rgb(${rgbState.r}, ${rgbState.g}, ${rgbState.b});
-	    }
-	    </style>
-	    </html>
+  hueApi.post("/rgb", (req, res) => {
+    rgbState = req.body;
+    onStateChange(req.body);
+    res.send(req.body);
+  });
 
-	    `
-    );
+  hueApi.get("/rgb", (req, res) => {
+    res.send(rgbState);
   });
 
   hueApi.listen(port);
